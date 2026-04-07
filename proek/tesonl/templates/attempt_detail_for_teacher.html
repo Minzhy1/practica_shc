@@ -1,0 +1,158 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Детали попытки - {{ attempt.student.full_name }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f4f4f4; }
+        .navbar {
+            background: #333;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-brand { font-size: 20px; font-weight: bold; }
+        .navbar-menu { display: flex; gap: 20px; align-items: center; }
+        .navbar-menu a { color: white; text-decoration: none; }
+        .user-info { background: #444; padding: 5px 15px; border-radius: 20px; }
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        .result-header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .score { font-size: 48px; font-weight: bold; color: #28a745; margin: 10px 0; }
+        .answer-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 15px;
+            background: white;
+        }
+        .answer-card.correct { border-left: 5px solid #28a745; }
+        .answer-card.incorrect { border-left: 5px solid #dc3545; }
+        .answer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .question-topic {
+            background: #17a2b8;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        .answer-status {
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            color: white;
+        }
+        .status-correct { background: #28a745; }
+        .status-incorrect { background: #dc3545; }
+        .answers-list { list-style: none; margin-top: 10px; }
+        .answer-item {
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .answer-correct-selected { background: #d4edda; border-left: 4px solid #28a745; }
+        .answer-wrong-selected { background: #f8d7da; border-left: 4px solid #dc3545; }
+        .answer-correct-not-selected { background: #e8f5e9; border-left: 4px solid #28a745; opacity: 0.8; }
+        .answer-normal { background: #f8f9fa; border-left: 4px solid #adb5bd; }
+        .badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .badge-correct-selected { background: #28a745; color: white; }
+        .badge-wrong-selected { background: #dc3545; color: white; }
+        .badge-correct-not-selected { background: #17a2b8; color: white; }
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; text-decoration: none; display: inline-block; }
+        .btn-primary { background: #667eea; color: white; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: #667eea; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">Система тестирования</div>
+        <div class="navbar-menu">
+            <span class="user-info">{{ user.full_name }} ({{ user.group.name }})</span>
+            <a href="{% url 'teacher_dashboard' %}">Панель учителя</a>
+            <a href="{% url 'logout_user' %}">Выйти</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <a href="{% url 'test_results_for_teacher' test.id %}" class="back-link">← Назад к результатам</a>
+
+        <div class="result-header">
+            <h2>{{ test.title }} - {{ attempt.student.full_name }}</h2>
+            <div class="score">{{ attempt.score }} / {{ test.testquestion_set.all|sum:'points' }} баллов</div>
+            <p>Начало: {{ attempt.start_time|date:"d.m.Y H:i" }}</p>
+            <p>Окончание: {{ attempt.end_time|date:"d.m.Y H:i" }}</p>
+        </div>
+
+        {% for answer in student_answers %}
+        <div class="answer-card {% if answer.is_correct %}correct{% else %}incorrect{% endif %}">
+            <div class="answer-header">
+                <div>
+                    <strong>Вопрос {{ forloop.counter }}</strong>
+                    <span class="question-topic">{{ answer.question.topic.name }}</span>
+                </div>
+                <span class="answer-status {% if answer.is_correct %}status-correct{% else %}status-incorrect{% endif %}">
+                    {% if answer.is_correct %}Правильно{% else %}Неправильно{% endif %}
+                </span>
+            </div>
+            <p style="margin: 10px 0;"><strong>{{ answer.question.text }}</strong></p>
+            <div class="points">
+                Получено баллов: {{ answer.points_earned }} / {{ answer.question.testquestion_set.first.points }}
+            </div>
+
+            {% if answer.question.type == 'text' %}
+                <div class="user-answer" style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Ответ ученика:</strong>
+                    <p>{{ answer.text_answer }}</p>
+                </div>
+            {% else %}
+                <div class="all-answers" style="margin-top: 15px;">
+                    <strong>Все варианты ответов:</strong>
+                    <ul class="answers-list">
+                        {% for qa in answer.all_answers %}
+                            <li class="answer-item
+                                {% if qa in answer.selected_answers_list and qa.is_correct %}answer-correct-selected
+                                {% elif qa in answer.selected_answers_list and not qa.is_correct %}answer-wrong-selected
+                                {% elif qa.is_correct %}answer-correct-not-selected
+                                {% else %}answer-normal{% endif %}">
+                                <span class="answer-text">{{ qa.answer.text }}</span>
+                                {% if qa in answer.selected_answers_list and qa.is_correct %}
+                                    <span class="badge badge-correct-selected">✓ Выбрано (правильно)</span>
+                                {% elif qa in answer.selected_answers_list and not qa.is_correct %}
+                                    <span class="badge badge-wrong-selected">✗ Выбрано (неправильно)</span>
+                                {% elif qa.is_correct %}
+                                    <span class="badge badge-correct-not-selected">✓ Правильный ответ</span>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

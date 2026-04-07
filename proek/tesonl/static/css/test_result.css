@@ -1,0 +1,253 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+}
+
+.navbar {
+    background: #333;
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar-brand {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.navbar-menu {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.navbar-menu a {
+    color: white;
+    text-decoration: none;
+}
+
+.user-info {
+    background: #444;
+    padding: 5px 15px;
+    border-radius: 20px;
+}
+
+.container {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.result-header {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.score {
+    font-size: 48px;
+    font-weight: bold;
+    color: #28a745;
+    margin: 10px 0;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary {
+    background: #667eea;
+    color: white;
+}
+
+.answers-review {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.answer-card {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 15px;
+}
+
+.answer-card.correct {
+    border-left: 5px solid #28a745;
+}
+
+.answer-card.incorrect {
+    border-left: 5px solid #dc3545;
+}
+
+.answer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.question-topic {
+    background: #17a2b8;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+.answer-status {
+    padding: 3px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    color: white;
+}
+
+.status-correct {
+    background: #28a745;
+}
+
+.status-incorrect {
+    background: #dc3545;
+}
+
+.user-answer, .correct-answer {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.correct-answer {
+    background: #d4edda;
+}
+
+.points {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+/* Стили для всех вариантов ответов с рамками */
+.all-answers {
+    margin-top: 15px;
+}
+
+.all-answers strong {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.answers-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+/* Каждый вариант ответа - как отдельная карточка с рамкой */
+.answer-item {
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #ddd;
+    transition: all 0.2s;
+}
+
+/* Правильный ответ, который выбрал ученик (зеленый) */
+.answer-correct-selected {
+    background: #d4edda;
+    border: 1px solid #28a745;
+    border-left: 5px solid #28a745;
+}
+
+/* Неправильный ответ, который выбрал ученик (красный) */
+.answer-wrong-selected {
+    background: #f8d7da;
+    border: 1px solid #dc3545;
+    border-left: 5px solid #dc3545;
+}
+
+/* Правильный ответ, который НЕ выбрал ученик */
+.answer-correct-not-selected {
+    background: #e8f5e9;
+    border: 1px solid #28a745;
+    border-left: 5px solid #28a745;
+    opacity: 0.85;
+}
+
+/* Обычный неправильный ответ (не выбран) */
+.answer-normal {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-left: 5px solid #adb5bd;
+}
+
+.answer-text {
+    flex: 1;
+    font-size: 14px;
+}
+
+.badge {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.badge-correct-selected {
+    background: #28a745;
+    color: white;
+}
+
+.badge-wrong-selected {
+    background: #dc3545;
+    color: white;
+}
+
+.badge-correct-not-selected {
+    background: #17a2b8;
+    color: white;
+}
+
+/* Текстовый ответ */
+.text-answer-area {
+    margin-top: 15px;
+}
+
+.user-text-answer {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.correct-text {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.incorrect-text {
+    color: #dc3545;
+    font-weight: bold;
+}

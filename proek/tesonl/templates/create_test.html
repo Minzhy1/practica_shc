@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание теста</title>
+    <link rel="stylesheet" href="{% static 'css/create_test.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">Система тестирования</div>
+        <div class="navbar-menu">
+            <span class="user-info">{{ user.full_name }} ({{ user.group.name }})</span>
+            <a href="{% url 'teacher_dashboard' %}">Панель учителя</a>
+            <a href="{% url 'logout_user' %}">Выйти</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}error{% else %}success{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="card">
+            <h2>Создание нового теста</h2>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label>Название теста</label>
+                    <input type="text" name="title" required placeholder="Введите название теста">
+                </div>
+
+                <div class="form-group">
+                    <label>Описание</label>
+                    <textarea name="description" placeholder="Введите описание теста"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Ограничение по времени (в минутах)</label>
+                    <input type="number" name="time_limit" value="0" min="0" required>
+                    <div class="help-text">0 - без ограничения времени</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Код доступа</label>
+                    <input type="text" name="access_code" required placeholder="Например: MATH2024">
+                    <div class="help-text">Уникальный код для доступа к тесту</div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{% url 'teacher_dashboard' %}" class="btn btn-secondary">Отмена</a>
+                    <button type="submit" class="btn btn-primary">Создать тест</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

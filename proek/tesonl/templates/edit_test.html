@@ -1,0 +1,111 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактирование теста</title>
+    <link rel="stylesheet" href="{% static 'css/edit_test.css' %}">
+</head>
+<header class="navbar">
+        <div class="navbar-brand">
+            <img src="{% static 'images/logo.jpg' %}" alt="Логотип" class="logo">
+            <span>Система тестирования</span>
+        </div>
+        <div class="navbar-menu">
+            <span class="user-info">{{ user.full_name }} ({{ user.group.name }})</span>
+            <a href="{% url 'teacher_dashboard' %}">Панель учителя</a>
+            <a href="{% url 'logout_user' %}">Выйти</a>
+        </div>
+    </header>
+<body>
+
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}error{% else %}success{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="test-info">
+            <h3>{{ test.title }}</h3>
+            <p>{{ test.description }}</p>
+            <p><strong>Код доступа:</strong> {{ test.access_code }}</p>
+            <p><strong>Время:</strong> {{ test.time_limit }} минут</p>
+        </div>
+
+        <div class="row">
+            <!-- Вопросы в тесте -->
+            <div class="card">
+                <div class="card-header">Вопросы в тесте</div>
+                {% for tq in test_questions %}
+                <div class="question-item">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                        <div style="font-weight: bold;">{{ tq.question.text }}</div>
+                        <form method="post" action="{% url 'remove_question_from_test' test.id tq.question.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button class="btn btn-danger btn-sm" onclick="removeQuestion({{ tq.question.id }})">Удалить</button>
+                        </form>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <span class="badge badge-topic">{{ tq.question.topic.name }}</span>
+                        <span class="badge badge-type">{{ tq.question.type }}</span>
+                        <form method="post" action="{% url 'edit_test' test.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="question_id" value="{{ tq.question.id }}">
+                            <input type="number" name="points" value="{{ tq.points }}" min="1" class="points-input" onchange="this.form.submit()">
+                        </form>
+                    </div>
+                </div>
+                {% empty %}
+                <p style="color: #999; text-align: center; padding: 20px;">В тесте пока нет вопросов</p>
+                {% endfor %}
+            </div>
+
+            <!-- Добавление вопросов -->
+            <div class="card">
+                <div class="card-header">Добавить вопрос</div>
+
+                <a href="{% url 'create_question' %}?test_id={{ test.id }}" class="btn btn-success" style="width: 100%; margin-bottom: 20px;">
+                    + Создать новый вопрос
+                </a>
+
+                <h4 style="margin-bottom: 10px;">Существующие вопросы:</h4>
+
+                <form method="post" action="{% url 'add_question_to_test' test.id %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <select name="question_id" required>
+                            <option value="">-- Выберите вопрос --</option>
+                            {% for question in available_questions %}
+                            <option value="{{ question.id }}">
+                                {{ question.text|truncatechars:50 }} ({{ question.topic.name }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Баллы за вопрос:</label>
+                        <input type="number" name="points" value="1" min="1" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Добавить вопрос</button>
+                </form>
+            </div>
+        </div>
+    </div>
+<script>
+function removeQuestion(questionId) {
+    if (confirm('Вы уверены, что хотите удалить этот вопрос из теста?')) {
+        fetch(`/test/{{ test.id }}/remove-question/${questionId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        }).then(() => location.reload());
+    }
+}
+</script>
+</body>
+</html>

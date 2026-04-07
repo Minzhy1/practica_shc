@@ -1,0 +1,91 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель ученика</title>
+    <link rel="stylesheet" href="{% static 'css/student_dashboard.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">Система тестирования</div>
+        <div class="navbar-menu">
+            <span class="user-info">{{ user.full_name }} ({{ user.group.name }})</span>
+            <a href="{% url 'logout_user' %}">Выйти</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>Добро пожаловать, {{ user.full_name }}!</h1>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+            <div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="row">
+            <div class="card">
+                <div class="card-header">Доступные тесты</div>
+                <div class="test-grid">
+                    {% for test in available_tests %}
+                    <div class="test-card">
+                        <h3>{{ test.title }}</h3>
+                        <p>{{ test.description|truncatechars:100 }}</p>
+                        <div class="test-meta">
+                            <span class="badge badge-time">{{ test.time_limit }} мин</span>
+                        </div>
+                        <a href="{% url 'take_test' test.id %}" class="btn btn-primary">Начать тест</a>
+                    </div>
+                    {% empty %}
+                    <div class="empty-message">Нет доступных тестов</div>
+                    {% endfor %}
+                </div>
+
+                <div class="access-code-form">
+                    <input type="text" id="accessCode" placeholder="Введите код доступа">
+                    <button class="btn btn-primary" onclick="goToTest()">Перейти</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Мои попытки</div>
+                <div class="attempt-list">
+                    {% for attempt in attempts %}
+                    <div class="attempt-item">
+                        <h4>{{ attempt.test.title }}</h4>
+                        <p>Начало: {{ attempt.start_time|date:"d.m.Y H:i" }}</p>
+                        {% if attempt.end_time %}
+                        <p>Окончание: {{ attempt.end_time|date:"d.m.Y H:i" }}</p>
+                        <p class="score">Результат: {{ attempt.score }} баллов</p>
+                        <a href="{% url 'test_result' attempt.id %}" class="btn btn-primary" style="margin-top: 10px;">Посмотреть результат</a>
+                        {% else %}
+                        <p style="color: #ffc107;">В процессе</p>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="empty-message">У вас пока нет попыток</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+   <script>
+    function goToTest() {
+        const code = document.getElementById('accessCode').value;
+        if (code) {
+            // Перенаправляем на take_test с test_id=0 и передаем код
+            window.location.href = `/test/0/take/?code=${code}`;
+        } else {
+            alert('Введите код доступа');
+        }
+    }
+</script>
+</body>
+</html>

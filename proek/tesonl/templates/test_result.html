@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Результаты теста</title>
+    <link rel="stylesheet" href="{% static 'css/test_result.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">Система тестирования</div>
+        <div class="navbar-menu">
+            <span class="user-info">{{ user.full_name }}</span>
+            <a href="{% url 'student_dashboard' %}">К тестам</a>
+            <a href="{% url 'logout_user' %}">Выйти</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="result-header">
+            <h2>{{ attempt.test.title }} - Результаты</h2>
+            <div class="score">{{ attempt.score }} баллов</div>
+            <p>Начало: {{ attempt.start_time|date:"d.m.Y H:i" }}</p>
+            <p>Окончание: {{ attempt.end_time|date:"d.m.Y H:i" }}</p>
+        </div>
+
+        <div class="answers-review">
+            <h3 style="margin-bottom: 20px;">Детализация ответов</h3>
+
+            {% for answer in student_answers %}
+            <div class="answer-card {% if answer.is_correct %}correct{% else %}incorrect{% endif %}">
+                <div class="answer-header">
+                    <div>
+                        <strong>Вопрос {{ forloop.counter }}</strong>
+                        <span class="question-topic">{{ answer.question.topic.name }}</span>
+                    </div>
+                    <span class="answer-status {% if answer.is_correct %}status-correct{% else %}status-incorrect{% endif %}">
+                        {% if answer.is_correct %}Правильно{% else %}Неправильно{% endif %}
+                    </span>
+                </div>
+
+                <p style="margin: 10px 0;"><strong>{{ answer.question.text }}</strong></p>
+
+                <div class="points">
+                    Получено баллов: {{ answer.points_earned }} / {{ answer.question.testquestion_set.first.points }}
+                </div>
+
+                {% if answer.question.type == 'text' %}
+                    <div class="user-answer">
+                        <strong>Ваш ответ:</strong>
+                        <p>{{ answer.text_answer }}</p>
+                    </div>
+                {% else %}
+                    <div class="all-answers">
+                        <strong>Все варианты ответов:</strong>
+                        <ul class="answers-list">
+                            {% for qa in answer.all_answers %}
+                                <li class="answer-item
+                                    {% if qa in answer.selected_answers_list and qa.is_correct %}answer-correct-selected
+                                    {% elif qa in answer.selected_answers_list and not qa.is_correct %}answer-wrong-selected
+                                    {% else %}answer-normal{% endif %}">
+
+                                    <span class="answer-text">{{ qa.answer.text }}</span>
+
+                                    {% if qa in answer.selected_answers_list and qa.is_correct %}
+                                        <span class="badge badge-correct-selected">✓ Ваш ответ</span>
+                                    {% elif qa in answer.selected_answers_list and not qa.is_correct %}
+                                        <span class="badge badge-wrong-selected">✗ Ваш ответ</span>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

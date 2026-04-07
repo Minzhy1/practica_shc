@@ -1,0 +1,43 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание темы</title>
+    <link rel="stylesheet" href="{% static 'css/create_topic.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">Система тестирования</div>
+        <div class="navbar-menu">
+            <span class="user-info">{{ user.full_name }} ({{ user.group.name }})</span>
+            <a href="{% url 'teacher_dashboard' %}">Панель учителя</a>
+            <a href="{% url 'logout_user' %}">Выйти</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <h2>Создание новой темы</h2>
+
+            <form method="post">
+                {% csrf_token %}
+                <!-- ИСПРАВЛЕНО: используем next параметр для возврата -->
+                <input type="hidden" name="next" value="{{ next }}">
+
+                <div class="form-group">
+                    <label>Название темы</label>
+                    <input type="text" name="name" required placeholder="Например: Математика">
+                </div>
+
+                <div class="form-actions">
+                    <!-- ИСПРАВЛЕНО: используем next для кнопки отмены -->
+                    <a href="{% url next %}{% if request.GET.test_id %}?test_id={{ request.GET.test_id }}{% endif %}" class="btn btn-secondary">Отмена</a>
+                    <button type="submit" class="btn btn-primary">Создать тему</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

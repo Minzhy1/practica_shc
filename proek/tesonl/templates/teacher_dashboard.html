@@ -1,0 +1,91 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель учителя</title>
+    <link rel="stylesheet" href="{% static 'css/teacher_dashboard.css' %}">
+</head>
+<header class="navbar">
+        <div class="navbar-brand">
+            <img src="{% static 'images/logo.jpg' %}" alt="Логотип" class="logo">
+            <span>Система тестирования МКОУ Шошинская СОШ № 13</span>
+        </div>
+        <div class="navbar-menu">
+            <span class="user-info">{{ user.full_name }} ({{ user.group.name }})</span>
+            <a href="{% url 'logout_user' %}">Выйти</a>
+        </div>
+    </header>
+<body>
+
+
+    <div class="container">
+        <div class="header">
+            <h1>Панель учителя</h1>
+            <a href="{% url 'create_test' %}" class="btn btn-primary">Создать новый тест</a>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}error{% else %}success{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="row">
+            <!-- Мои тесты -->
+            <div class="card">
+                <div class="card-header">Мои тесты</div>
+                <div class="test-list">
+                    {% for test in created_tests %}
+                    <div class="test-item">
+                        <div class="test-header">
+                            <span class="test-title">{{ test.title }}</span>
+                        </div>
+                        <div class="test-info">
+                            <p>{{ test.description|truncatechars:100 }}</p>
+                        </div>
+                        <div class="test-meta">
+                            <span class="badge badge-code">Код: {{ test.access_code }}</span>
+                            <span class="badge badge-time">{{ test.time_limit }} мин</span>
+                        </div>
+                        <div class="button-group">
+                            <a href="{% url 'edit_test' test.id %}" class="btn btn-success btn-sm">Редактировать</a>
+                            <a href="{% url 'test_results_for_teacher' test.id %}" class="btn btn-primary btn-sm">Результаты</a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="empty-message">
+                        У вас пока нет созданных тестов
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Мои вопросы -->
+            <div class="card">
+                <div class="card-header">Мои вопросы</div>
+                <div class="question-list">
+                    {% for question in created_questions %}
+                    <div class="question-item">
+                        <div class="question-header">
+                            <span class="question-text">{{ question.text|truncatechars:50 }}</span>
+                        </div>
+                        <div class="question-meta">
+                            <span class="badge badge-topic">{{ question.topic.name }}</span>
+                            <span class="badge badge-type">{{ question.type }}</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="empty-message">
+                        У вас пока нет созданных вопросов
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

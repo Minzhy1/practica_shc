@@ -1,0 +1,170 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание вопроса</title>
+    <link rel="stylesheet" href="{% static 'css/create_question.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">Система тестирования</div>
+        <div class="navbar-menu">
+            <span class="user-info">{{ user.full_name }} ({{ user.group.name }})</span>
+            <a href="{% url 'teacher_dashboard' %}">Панель учителя</a>
+            <a href="{% url 'logout_user' %}">Выйти</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}error{% else %}success{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="card">
+            <h2>Создание нового вопроса</h2>
+
+            <form method="post" id="questionForm">
+                {% csrf_token %}
+
+                <input type="hidden" name="test_id" value="{{ test_id }}">
+
+                <!-- Выбор существующей темы -->
+                <div class="form-group">
+                    <label>Выберите существующую тему</label>
+                    <select name="topic_id" id="topicSelect">
+                        <option value="">-- Выберите тему --</option>
+                        {% for topic in topics %}
+                            <option value="{{ topic.id }}">{{ topic.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Или создание новой темы -->
+                <div class="topic-section">
+                    <h4>Или создайте новую тему</h4>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="topic_option" value="existing" checked> Использовать существующую тему
+                        </label>
+                        <label>
+                            <input type="radio" name="topic_option" value="new"> Создать новую тему
+                        </label>
+                    </div>
+
+                    <div id="newTopicField" style="display: none; margin-top: 15px;">
+                        <label>Название новой темы</label>
+                        <input type="text" name="new_topic_name" placeholder="Например: Алгебра">
+                    </div>
+                </div>
+
+                <!-- Текст вопроса -->
+                <div class="form-group">
+                    <label>Текст вопроса</label>
+                    <textarea name="text" rows="3" required placeholder="Введите текст вопроса..."></textarea>
+                </div>
+
+                <!-- Тип вопроса -->
+                <div class="form-group">
+                    <label>Тип вопроса</label>
+                    <select name="type" id="questionType" required>
+                        <option value="single">Одиночный выбор</option>
+                        <option value="multiple">Множественный выбор</option>
+                        <option value="text">Текстовый ответ</option>
+                    </select>
+                </div>
+
+                <!-- Блок для вопросов с выбором (single/multiple) -->
+                <div id="choiceAnswersSection">
+                    <label>Варианты ответов</label>
+                    <div id="answersList">
+                        <div class="answer-item">
+                            <input type="text" name="answer_text[]" placeholder="Текст ответа">
+                            <label style="display: flex; align-items: center; gap: 5px; margin-left: 10px;">
+                                <input type="checkbox" name="answer_correct[]" value="0"> Правильный
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-secondary" onclick="addAnswer()" style="margin-top: 10px;">
+                        + Добавить ответ
+                    </button>
+                </div>
+
+                <!-- Блок для текстового вопроса -->
+                <div id="textAnswerSection" style="display: none;">
+
+
+                    <div class="form-group">
+                        <label>Правильный ответ</label>
+                        <input type="text" name="correct_text_answer" placeholder="Например: Python" style="width: 100%; padding: 10px;">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{% if test_id %}{% url 'edit_test' test_id %}{% else %}{% url 'teacher_dashboard' %}{% endif %}" class="btn btn-secondary">Отмена</a>
+                    <button type="submit" class="btn btn-primary">Сохранить вопрос</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let answerCount = 1;
+
+        // Показывать/скрывать поле для новой темы
+        document.querySelectorAll('input[name="topic_option"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const newTopicField = document.getElementById('newTopicField');
+                const topicSelect = document.getElementById('topicSelect');
+
+                if (this.value === 'new') {
+                    newTopicField.style.display = 'block';
+                    topicSelect.disabled = true;
+                    topicSelect.value = '';
+                } else {
+                    newTopicField.style.display = 'none';
+                    topicSelect.disabled = false;
+                }
+            });
+        });
+
+        // Показывать/скрывать блоки в зависимости от типа вопроса
+        document.getElementById('questionType').addEventListener('change', function() {
+            const choiceSection = document.getElementById('choiceAnswersSection');
+            const textSection = document.getElementById('textAnswerSection');
+
+            if (this.value === 'text') {
+                choiceSection.style.display = 'none';
+                textSection.style.display = 'block';
+            } else {
+                choiceSection.style.display = 'block';
+                textSection.style.display = 'none';
+            }
+        });
+
+        function addAnswer() {
+            const list = document.getElementById('answersList');
+            const newAnswer = document.createElement('div');
+            newAnswer.className = 'answer-item';
+            newAnswer.style.display = 'flex';
+            newAnswer.style.alignItems = 'center';
+            newAnswer.style.marginBottom = '10px';
+            newAnswer.innerHTML = `
+                <input type="text" name="answer_text[]" placeholder="Текст ответа" style="flex: 1; padding: 8px;">
+                <label style="display: flex; align-items: center; gap: 5px; margin-left: 10px;">
+                    <input type="checkbox" name="answer_correct[]" value="${answerCount}"> Правильный
+                </label>
+                <button type="button" class="btn btn-secondary" onclick="this.parentElement.remove()" style="padding: 5px 10px; margin-left: 10px;">Удалить</button>
+            `;
+            list.appendChild(newAnswer);
+            answerCount++;
+        }
+    </script>
+</body>
+</html>

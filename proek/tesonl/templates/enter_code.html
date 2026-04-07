@@ -1,0 +1,43 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ввод кода доступа</title>
+    <link rel="stylesheet" href="{% static 'css/enter_code.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">Система тестирования</div>
+        <div class="navbar-menu">
+            <span class="user-info">{{ user.full_name }}</span>
+            <a href="{% url 'student_dashboard' %}">К тестам</a>
+            <a href="{% url 'logout_user' %}">Выйти</a>
+        </div>
+    </nav>
+
+    <div class="container" style="max-width: 500px; margin-top: 100px;">
+        <div class="card">
+            <h2 style="text-align: center; margin-bottom: 30px;">Ввод кода доступа</h2>
+
+            {% if error %}
+            <div class="alert alert-error">{{ error }}</div>
+            {% endif %}
+
+            <form method="post" action="{% url 'enter_code' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Код доступа к тесту</label>
+                    <input type="text" name="access_code" required placeholder="Введите код">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Начать тест</button>
+            </form>
+
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="{% url 'student_dashboard' %}">Вернуться к списку тестов</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
